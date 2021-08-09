@@ -93,10 +93,13 @@
       });
 
       repeatsAdd.addEventListener('click', () => {
-        repeatsTotal += parseInt(repeatsInput.value);
-        repeatsInput.value = 0;
-        refreshDisplay();
-        persistState();
+        const delta = parseInt(repeatsInput.value);
+        if (delta >= 0 || confirm(`You sure you want to remove ${Math.abs(delta)} points?`)) {
+          repeatsTotal += delta;
+          repeatsInput.value = 0;
+          refreshDisplay();
+          persistState();
+        }
       });
 
       resetAll.addEventListener('click', () => {
@@ -174,7 +177,7 @@
       <button style="flex: 1" id="reset-all">🔄️</button>
     </div>
     <div style="display: flex; gap: 10px;">
-      <input style="display: inline-block; flex: 5" size="1" type="number" id="repeats-input" value="0" step="10" min="0" />
+      <input style="display: inline-block; flex: 5" size="1" type="number" id="repeats-input" value="0" step="10" />
       <button style="flex: 1" id="repeats-add">+</button>
     </div>
   </div>
