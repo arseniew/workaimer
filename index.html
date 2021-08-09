@@ -168,14 +168,15 @@
   <div class="app">
     <div id="timer-display"></div>
     <div id="balance-display"></div>
-    <div style="display: flex; gap: 10px;">
-      <button id="timer-start">▶️</button>
-      <button id="timer-stop" style="display: none">⏸️</button>
-      <button id="reset-all">🔄️</button>
-      <input size="1" type="number" id="repeats-input" value="0" step="10" min="0" />
-      <button id="repeats-add">+</button>
+    <div style="display: flex; gap: 10px; flex: 1;">
+      <button style="flex: 1" id="timer-start">▶️</button>
+      <button style="flex: 1" id="timer-stop" style="display: none">⏸️</button>
+      <button style="flex: 1" id="reset-all">🔄️</button>
     </div>
-    
+    <div style="display: flex; gap: 10px;">
+      <input style="display: inline-block; flex: 5" size="1" type="number" id="repeats-input" value="0" step="10" min="0" />
+      <button style="flex: 1" id="repeats-add">+</button>
+    </div>
   </div>
 </body>
 </html>
