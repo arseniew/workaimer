@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Workaimer</title>
+  <script type="text/javascript">
+    'use strict';
+    const $ = (selector) => document.querySelector(selector);
+    
+    window.addEventListener('load', (event) => {
+  
+      let running = Boolean(localStorage.getItem('running')) || false;
+      let startTime = Number(localStorage.getItem('startTime')) || 0;
+      let countedTime = Number(localStorage.getItem('countedTime')) || 0;
+      let accumulatedTime = Number(localStorage.getItem('accumulatedTime')) || 0;
+      let repeatsTotal = Number(localStorage.getItem('repeatsTotal')) || 0;
+
+      let tickInterval;
+
+      const timerDisplay = $('#timer-display');
+      const timerStart = $('#timer-start');
+      const timerStop = $('#timer-stop');
+
+
+      const repeatsInput = $('#repeats-input');
+      const repeatsAdd = $('#repeats-add');
+      const balanceDisplay = $('#balance-display');
+      const resetAll = $('#reset-all');
+
+      function persistState() {
+        localStorage.setItem('accumulatedTime', accumulatedTime);
+        localStorage.setItem('repeatsTotal', repeatsTotal);
+        localStorage.setItem('running', Number(running));
+        localStorage.setItem('startTime', startTime);
+        localStorage.setItem('countedTime', countedTime);
+      }
+
+      function refreshDisplay() {
+        const timeDelta = new Date(accumulatedTime + countedTime);
+        const totalMinutes = ((timeDelta.getHours()-1)*60) + timeDelta.getMinutes();
+        timerDisplay.innerHTML = `${totalMinutes}.${timeDelta.getSeconds()}`;
+        const balanceMinutes = repeatsTotal - totalMinutes;
+        balanceDisplay.innerHTML = balanceMinutes;
+        if (balanceMinutes > 0) {
+          balanceDisplay.className = 'positive';
+        } else if (balanceMinutes < 0) {
+          balanceDisplay.className = 'negative';
+        } else {
+          balanceDisplay.className = '';
+        };
+      }
+
+      refreshDisplay();
+
+      function startTimer(initTime = Date.now()) {
+        timerStart.style.display = 'none';
+        timerStop.style.display = 'unset';
+        startTime = initTime;
+        if (tickInterval) {
+          return;
+        }
+        tickInterval = setInterval(() => {
+          countedTime = Date.now() - startTime;
+          refreshDisplay();
+          persistState();
+        }, 50);
+      }
+
+      if (running) {
+        startTimer(startTime);
+      }
+
+      timerStart.addEventListener('click', () => {
+        startTimer();
+        refreshDisplay();
+      });
+
+      function stopTimer() {
+        timerStart.style.display = 'unset';
+        timerStop.style.display = 'none';
+        clearInterval(tickInterval);
+        tickInterval = undefined;
+        accumulatedTime += countedTime;
+        countedTime = 0;
+      }
+
+      timerStop.addEventListener('click', () => {
+        stopTimer();
+        refreshDisplay();
+        persistState();
+      });
+
+      repeatsAdd.addEventListener('click', () => {
+        repeatsTotal += parseInt(repeatsInput.value);
+        repeatsInput.value = 0;
+        refreshDisplay();
+        persistState();
+      });
+
+      resetAll.addEventListener('click', () => {
+        if (confirm('You sure you want to reset everything to zero')) {
+          stopTimer();
+          accumulatedTime = 0;
+          repeatsTotal = 0;
+          refreshDisplay();
+          persistState();
+        }
+      })
+
+    });
+  </script>
+  <style>
+    #timer-display {
+      text-align: center;
+      font-size: 30px;;
+    }
+    #balance-display {
+      text-align: center;
+      font-size: 90px;
+    }
+    .positive {
+      color: green;
+    }
+    .negative {
+      color: red;
+    }
+    html {
+      min-height: 100vh;
+    }
+    body {
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background-color: black;
+      color: #ccc;
+    }
+    input, button {
+      font-size: 18px;
+      padding: 10px;
+      color: #ccc;
+      background-color: #2e2e38;
+      border: 1px solid #383849;
+      text-align: center;
+    }
+    input:hover,
+    button:hover {
+      border: 1px solid #4d4d62;
+    }
+    input:active,
+    button:active {
+      background-color: #404050;
+    }
+    .app {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      padding: 27px;
+      background-color: #222;
+      flex-basis: 250px;
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div id="timer-display"></div>
+    <div id="balance-display"></div>
+    <div style="display: flex; gap: 10px;">
+      <button id="timer-start">▶️</button>
+      <button id="timer-stop" style="display: none">⏸️</button>
+      <button id="reset-all">🔄️</button>
+      <input size="1" type="number" id="repeats-input" value="0" step="10" min="0" />
+      <button id="repeats-add">+</button>
+    </div>
+    
+  </div>
+</body>
+</html>
