@@ -11,7 +11,7 @@
     
     window.addEventListener('load', (event) => {
   
-      let running = Boolean(localStorage.getItem('running')) || false;
+      let running = Boolean(Number(localStorage.getItem('running'))) || false;
       let startTime = Number(localStorage.getItem('startTime')) || 0;
       let countedTime = Number(localStorage.getItem('countedTime')) || 0;
       let accumulatedTime = Number(localStorage.getItem('accumulatedTime')) || 0;
@@ -25,6 +25,7 @@
 
 
       const repeatsInput = $('#repeats-input');
+      const repeatsForm = $('#repeats-form');
       const repeatsAdd = $('#repeats-add');
       const balanceDisplay = $('#balance-display');
       const resetAll = $('#reset-all');
@@ -66,6 +67,7 @@
           refreshDisplay();
           persistState();
         }, 50);
+        running = true;
       }
 
       if (running) {
@@ -84,6 +86,7 @@
         tickInterval = undefined;
         accumulatedTime += countedTime;
         countedTime = 0;
+        running = false;
       }
 
       timerStop.addEventListener('click', () => {
@@ -92,14 +95,23 @@
         persistState();
       });
 
-      repeatsAdd.addEventListener('click', () => {
+      function addRepeatsHandler() {
         const delta = parseInt(repeatsInput.value);
         if (delta >= 0 || confirm(`You sure you want to remove ${Math.abs(delta)} points?`)) {
           repeatsTotal += delta;
-          repeatsInput.value = 0;
+          repeatsInput.value = '';
           refreshDisplay();
           persistState();
         }
+      }
+
+      repeatsForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        addRepeatsHandler();
+      });
+
+      repeatsAdd.addEventListener('click', () => {
+        addRepeatsHandler();
       });
 
       resetAll.addEventListener('click', () => {
@@ -173,11 +185,13 @@
     <div id="balance-display"></div>
     <div style="display: flex; gap: 10px; flex: 1;">
       <button style="flex: 1" id="timer-start">▶️</button>
-      <button style="flex: 1" id="timer-stop" style="display: none">⏸️</button>
+      <button style="flex: 1; display: none;" id="timer-stop">⏸️</button>
       <button style="flex: 1" id="reset-all">🔄️</button>
     </div>
     <div style="display: flex; gap: 10px;">
-      <input style="display: inline-block; flex: 5" size="1" type="number" id="repeats-input" value="0" step="10" />
+      <form id="repeats-form">
+        <input style="display: inline-block; flex: 5" size="1" type="number" id="repeats-input" value="" step="10" />
+      </form>
       <button style="flex: 1" id="repeats-add">+</button>
     </div>
   </div>
